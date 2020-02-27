@@ -1,33 +1,52 @@
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useReducer} from "react";
 import ReactDOM from "react-dom";
 import "./styles.css";
 
+function  fetchReducer (state, action) {
+  if(action.type === 'fetch' ) {
+    return{
+      ...state,
+      loading: true,
+    }
+  } else if (action.type === 'success') {
+    return {
+      ...state,
+      data: action.data,
+      error: null,
+      loading: false
 
+    }
+  } else if (action.type === 'error') {
+    return{
+      ...state,
+      error: 'Error fetching data.',
+      loading: false
+    }
+  } else {
+    throw new Error(`That action type isn't supported.`)
+  }
+}
 function useFetch (url) {
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const [data, setData] = useState(null)
+  const [state, dispatch] = useReducer(
+    fetchReducer,
+    {data: null, error: null, loading: true}
+  )
   
   useEffect(()=> {
-    setLoading(true)
+    dispatch({ type : 'fetch' })
     
     fetch(url)
     .then((res) => res.json())
-    .then((data) => {
-      setData(data)
-      setError(null)
-      setLoading(false)
-    })
+    .then((data) => dispatch({ type: 'success', data}))
     .catch((e) => {
       console.warn(e.message)
-      setError('Error Fetching Data.')
-      setLoading(false)
+      dispatch({ type: 'error'})
     })
   },[url])
   return {
-    loading,
-    data,
-    error
+    loading: state.loading,
+    data: state.data,
+    error: state.error
   }
 }
 
