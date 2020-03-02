@@ -43,11 +43,10 @@ function useFetch (url) {
       dispatch({ type: 'error'})
     })
   },[url])
-  return {
-    loading: state.loading,
-    data: state.data,
-    error: state.error
-  }
+  
+  const { loading, data, error } = state;
+  
+  return { loading, data, error }
 }
 
 const postIds = [1, 2, 3, 4, 5, 6, 7, 8]
